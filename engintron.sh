@@ -1,17 +1,17 @@
 #!/bin/bash
 
 # /**
-#  * @version    1.9.3
+#  * @version    1.12.0
 #  * @package    Engintron for cPanel/WHM
 #  * @author     Fotis Evangelou (https://kodeka.io)
 #  * @url        https://engintron.com
-#  * @copyright  Copyright (c) 2018 - 2019 Kodeka OÜ. All rights reserved.
+#  * @copyright  Copyright (c) 2018 - 2020 Kodeka OÜ. All rights reserved.
 #  * @license    GNU/GPL license: https://www.gnu.org/copyleft/gpl.html
 #  */
 
 # Constants
 APP_PATH="/usr/local/src/engintron"
-APP_VERSION="1.9.3"
+APP_VERSION="1.12.0"
 
 CPANEL_PLG_PATH="/usr/local/cpanel/whostmgr/docroot/cgi"
 REPO_CDN_URL="https://cdn.jsdelivr.net/gh/engintron/engintron"
@@ -809,14 +809,14 @@ enable)
     sed -i 's:PROXY_TO_PORT 443;:PROXY_TO_PORT 8443;:' /etc/nginx/common_https.conf
 
     sed -i 's:listen 8080 default_server:listen 80 default_server:' /etc/nginx/conf.d/default.conf
-    sed -i 's:listen [\:\:]\:8080 default_server:listen [\:\:]\:80 default_server:' /etc/nginx/conf.d/default.conf
+    sed -i 's:listen \[\:\:\]\:8080 default_server:listen [\:\:]\:80 default_server:' /etc/nginx/conf.d/default.conf
     sed -i 's:deny all; #:# deny all; #:' /etc/nginx/conf.d/default.conf
     sed -i 's:PROXY_TO_PORT 80;:PROXY_TO_PORT 8080;:' /etc/nginx/conf.d/default.conf
     sed -i 's:\:80; # Apache Status Page:\:8080; # Apache Status Page:' /etc/nginx/conf.d/default.conf
 
     if [ -f /etc/nginx/conf.d/default_https.conf ]; then
         sed -i 's:listen 8443 ssl:listen 443 ssl:g' /etc/nginx/conf.d/default_https.conf
-        sed -i 's:listen [\:\:]\:8443 ssl:listen [\:\:]\:443 ssl:g' /etc/nginx/conf.d/default_https.conf
+        sed -i 's:listen \[\:\:\]\:8443 ssl:listen [\:\:]\:443 ssl:g' /etc/nginx/conf.d/default_https.conf
         sed -i 's:deny all; #:# deny all; #:g' /etc/nginx/conf.d/default_https.conf
     fi
 
@@ -857,14 +857,14 @@ disable)
     sed -i 's:PROXY_TO_PORT 8443;:PROXY_TO_PORT 443;:' /etc/nginx/common_https.conf
 
     sed -i 's:listen 80 default_server:listen 8080 default_server:' /etc/nginx/conf.d/default.conf
-    sed -i 's:listen [\:\:]\:80 default_server:listen [\:\:]\:8080 default_server:' /etc/nginx/conf.d/default.conf
+    sed -i 's:listen \[\:\:\]\:80 default_server:listen [\:\:]\:8080 default_server:' /etc/nginx/conf.d/default.conf
     sed -i 's:# deny all; #:deny all; #:' /etc/nginx/conf.d/default.conf
     sed -i 's:PROXY_TO_PORT 8080;:PROXY_TO_PORT 80;:' /etc/nginx/conf.d/default.conf
     sed -i 's:\:8080; # Apache Status Page:\:80; # Apache Status Page:' /etc/nginx/conf.d/default.conf
 
     if [ -f /etc/nginx/conf.d/default_https.conf ]; then
         sed -i 's:listen 443 ssl:listen 8443 ssl:g' /etc/nginx/conf.d/default_https.conf
-        sed -i 's:listen [\:\:]\:443 ssl:listen [\:\:]\:8443 ssl:g' /etc/nginx/conf.d/default_https.conf
+        sed -i 's:listen \[\:\:\]\:443 ssl:listen [\:\:]\:8443 ssl:g' /etc/nginx/conf.d/default_https.conf
         sed -i 's:# deny all; #:deny all; #:g' /etc/nginx/conf.d/default_https.conf
     fi
 
@@ -885,6 +885,18 @@ disable)
     echo "*         Engintron Disabled         *"
     echo "**************************************"
     echo ""
+    echo ""
+    ;;
+reload)
+    echo "======================="
+    echo "=== Reloading Nginx ==="
+    echo "======================="
+    echo ""
+    if [ "$(pstree | grep 'nginx')" ]; then
+        echo "Reloading Nginx..."
+        service nginx reload
+        echo ""
+    fi
     echo ""
     ;;
 resall)
@@ -942,6 +954,12 @@ res)
         echo ""
     fi
     if [ "$(pstree | grep 'nginx')" ]; then
+        if [ "$2" == "force" ]; then
+            echo "Kill all Nginx processes..."
+            killall -9 nginx
+            killall -9 nginx
+            killall -9 nginx
+        fi
         echo "Restarting Nginx..."
         service nginx restart
         echo ""
@@ -1156,6 +1174,7 @@ Main commands:
 
 Utility commands:
     res              Restart web servers only (Apache & Nginx)
+    res force        Restart Apache & force restart Nginx (kills all previous Nginx processes)
     resall           Restart Cron, CSF & LFD (if installed), Munin (if installed),
                      MySQL, Apache, Nginx
     80               Show active connections on port 80 sorted by connection count & IP,

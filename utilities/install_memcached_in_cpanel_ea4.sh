@@ -1,15 +1,15 @@
 #!/bin/bash
 
 # /**
-#  * @version    1.9.3
+#  * @version    1.12.0
 #  * @package    Engintron for cPanel/WHM
 #  * @author     Fotis Evangelou (https://kodeka.io)
 #  * @url        https://engintron.com
-#  * @copyright  Copyright (c) 2018 - 2019 Kodeka OÜ. All rights reserved.
+#  * @copyright  Copyright (c) 2018 - 2020 Kodeka OÜ. All rights reserved.
 #  * @license    GNU/GPL license: https://www.gnu.org/copyleft/gpl.html
 #  */
 
-CACHE_SIZE="256M"
+CACHE_SIZE="512M"
 
 if [[ $1 ]]; then
     CACHE_SIZE=$1
@@ -37,8 +37,8 @@ if [ -e "/etc/sysconfig/memcached" ]; then
 fi
 service memcached restart
 
-# Install related PHP modules for PHP versions 5.6 to 7.2
-yum -y install ea-php56-php-memcached ea-php70-php-memcached ea-php71-php-memcached ea-php72-php-memcached
+# Install related PHP modules for PHP versions 5.6 to 7.3
+yum -y install ea-php56-php-memcached ea-php70-php-memcached ea-php71-php-memcached ea-php72-php-memcached ea-php73-php-memcached
 
 # Finish things up by restarting web services
 service memcached restart
